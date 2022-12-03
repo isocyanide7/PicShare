@@ -1,7 +1,17 @@
 import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import User from "./Users/Pages/Users";
 
 const App = () => {
-  return <h1>Let's start!</h1>;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<User />} />
+        <Route path="/in" element="dasaoijdsa" />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 };
 
 export default App;
