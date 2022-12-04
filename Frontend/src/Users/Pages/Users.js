@@ -8,7 +8,8 @@ const User = () => {
       name: "Nilesh Chandra",
       postCount: "7",
       image:
-        "https://upload.wikimedia.org/wikipedia/en/9/96/SatoruGojomanga.png"}
+        "https://upload.wikimedia.org/wikipedia/en/9/96/SatoruGojomanga.png",
+    },
   ];
   return <UserList items={USERS} />;
 };
