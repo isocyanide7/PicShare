@@ -2,6 +2,7 @@ import React from "react";
 
 import Card from "../../../Shared/Components/UIElements/Card/Card";
 import PostItem from "../PostItem/PostItem";
+import Button from "../../../Shared/Components/FormElements/Button/Button";
 import "./PostList.css";
 
 const PostList = (props) => {
@@ -10,7 +11,7 @@ const PostList = (props) => {
       <div className="place-list center">
         <Card>
           <h2>No Posts Found. Create one now.</h2>
-          <button>Share Post</button>
+          <Button to="/posts/new">Share Post</Button>
         </Card>
       </div>
     );
