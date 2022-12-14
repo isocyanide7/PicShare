@@ -1,22 +1,26 @@
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 
 import { validate } from "../../../Utils/Validators";
 import "./Input.css";
 
 const inputReducer = (state, action) => {
-  if (action.type === "change") {
-    return {
-      ...state,
-      value: action.val,
-      isValid: validate(action.val, action.validators),
-    };
-  } else if (action.type === "touch") {
-    return {
-      ...state,
-      isTouched: true,
-    };
-  } else {
-    return state;
+  switch (action.type) {
+    case "change": {
+      return {
+        ...state,
+        value: action.val,
+        isValid: validate(action.val, action.validators),
+      };
+    }
+    case "touch": {
+      return {
+        ...state,
+        isTouched: true,
+      };
+    }
+    default: {
+      return state;
+    }
   }
 };
 const Input = (props) => {
@@ -35,6 +39,11 @@ const Input = (props) => {
   const touchHandler = () => {
     dispatch({ type: "touch" });
   };
+  const { id, onInput } = props;
+  const { value, isValid } = inputState;
+  useEffect(() => {
+    onInput(id, value, isValid);
+  }, [id, onInput, value, isValid]);
   const element =
     props.element === "input" ? (
       <input
@@ -63,7 +72,6 @@ const Input = (props) => {
       <label htmlFor={props.id}>{props.label}</label>
       {element}
       {!inputState.isValid && inputState.isTouched && <p>{props.errorText}</p>}
-      {inputState.value}
     </div>
   );
 };
