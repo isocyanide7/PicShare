@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import MainHeader from "../MainHeader/MainHeader";
 import NavigationLinks from "../NavigationLinks/NavigationLinks";
@@ -33,7 +33,7 @@ const MainNavigation = (props) => {
           <span />
         </button>
         <h1 className="main-navigation__title">
-          <Link>PicShare</Link>
+          <Link to={`/`}>PicShare</Link>
         </h1>
         <nav className="main-navigation__header-nav">
           <NavigationLinks />

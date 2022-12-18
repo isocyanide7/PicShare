@@ -5,7 +5,7 @@ import Button from "../../../Shared/Components/FormElements/Button/Button";
 import {
   VALIDATOR_MINLENGTH,
   VALIDATOR_REQUIRE,
-} from "../../../Shared/Utils/Validators";
+} from "../../../Shared/Utils/Validators/Validators";
 import "./NewPost.css";
 
 const formReducer = (state, action) => {
@@ -79,15 +79,6 @@ const NewPost = (props) => {
         label="Description"
         validators={[VALIDATOR_MINLENGTH(5)]}
         errorText="Please enter a description with at least length 5."
-      />
-      <Input
-        id="caption"
-        onInput={ChangeHandler}
-        element="input"
-        type="text"
-        label="Caption"
-        validators={[VALIDATOR_REQUIRE()]}
-        errorText="Please enter a Caption."
       />
       <Button disabled={!formState.isValid}>ADD PLACE</Button>
     </form>
