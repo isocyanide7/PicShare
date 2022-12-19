@@ -15,6 +15,19 @@ const PostItem = (props) => {
   const closePhotoHandler = () => {
     setShowPhoto(false);
   };
+
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const showDeleteWarningHandler = () => {
+    setShowConfirmModal(true);
+  };
+  const cancelDeleteHandler = () => {
+    setShowConfirmModal(false);
+  };
+  const confirmDeleteHandler = () => {
+    setShowConfirmModal(false);
+    console.log("...DELETING");
+  };
+
   return (
     <React.Fragment>
       <Modal
@@ -27,7 +40,25 @@ const PostItem = (props) => {
       >
         <div className="map-container">
           <p className="post-item__info">{props.description}</p>
-          </div>
+        </div>
+      </Modal>
+      <Modal
+        show={showConfirmModal}
+        onCancel={cancelDeleteHandler}
+        header="ARE YOU SURE?"
+        footerClass="post-item__modal-actions"
+        footer={
+          <React.Fragment>
+            <Button danger onClick={confirmDeleteHandler}>
+              DELETE
+            </Button>
+            <Button inverse onClick={cancelDeleteHandler}>
+              CANCEL
+            </Button>
+          </React.Fragment>
+        }
+      >
+        <p>DELETING IS IRREVERSIBLE. DO YOU WANT TO PROCEED?</p>
       </Modal>
       <li className="post-item">
         <Card className="post-item__content">
@@ -42,7 +73,9 @@ const PostItem = (props) => {
               VIEW DESCRIPTION
             </Button>
             <Button to={`/posts/${props.id}`}>EDIT POST</Button>
-            <Button danger>DELETE POST</Button>
+            <Button danger onClick={showDeleteWarningHandler}>
+              DELETE POST
+            </Button>
           </div>
         </Card>
       </li>

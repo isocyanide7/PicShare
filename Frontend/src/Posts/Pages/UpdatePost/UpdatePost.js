@@ -35,19 +35,21 @@ const UpdatePost = (props) => {
   const identifiedPost = USERPOSTS.find((post) => post.id === postId);
 
   useEffect(() => {
-    setFormData(
-      {
-        title: {
-          value: identifiedPost.title,
-          valid: true,
+    if (identifiedPost) {
+      setFormData(
+        {
+          title: {
+            value: identifiedPost.title,
+            valid: true,
+          },
+          description: {
+            value: identifiedPost.description,
+            valid: true,
+          },
         },
-        description: {
-          value: identifiedPost.description,
-          valid: true,
-        },
-      },
-      true
-    );
+        true
+      );
+    }
     setIsLoading(false);
   }, [setFormData, identifiedPost]);
 
