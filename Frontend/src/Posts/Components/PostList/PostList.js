@@ -25,7 +25,7 @@ const PostList = (props) => {
           image={item.image}
           description={item.description}
           creatorId={item.creator}
-          caption={item.caption}
+          title={item.title}
         />
       ))}
     </ul>

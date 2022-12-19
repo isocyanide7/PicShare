@@ -20,7 +20,7 @@ const PostItem = (props) => {
       <Modal
         show={showPhoto}
         onCancel={closePhotoHandler}
-        header={props.caption}
+        header={props.title}
         contentClass="post-item__modal-content"
         footerClass="post-item__modal-actions"
         footer={<Button onClick={closePhotoHandler}>CLOSE</Button>}
@@ -32,10 +32,10 @@ const PostItem = (props) => {
       <li className="post-item">
         <Card className="post-item__content">
           <div className="post-item__image">
-            <img src={props.image} alt={props.caption} />
+            <img src={props.image} alt={props.title} />
           </div>
           <div className="post-item__info">
-            <h2>{props.caption}</h2>
+            <h2>{props.title}</h2>
           </div>
           <div className="post-item__actions">
             <Button inverse onClick={openPhotoHandler}>

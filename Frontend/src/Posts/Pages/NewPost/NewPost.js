@@ -1,4 +1,4 @@
-import React, { useCallback, useReducer } from "react";
+import React from "react";
 
 import Input from "../../../Shared/Components/FormElements/Input/Input";
 import Button from "../../../Shared/Components/FormElements/Button/Button";
@@ -7,35 +7,11 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../../Shared/Utils/Validators/Validators";
 import "./NewPost.css";
+import useForm from "../../../Shared/Hooks/form-hook";
 
-const formReducer = (state, action) => {
-  switch (action.type) {
-    case "INPUT_CHANGE": {
-      let formIsValid = true;
-      for (const inputId in state.inputs) {
-        if (inputId === action.inputId) {
-          formIsValid = formIsValid && action.isValid;
-        } else {
-          formIsValid = formIsValid && state.inputs[inputId].isValid;
-        }
-      }
-      return {
-        ...state,
-        inputs: {
-          ...state.inputs,
-          [action.inputId]: { value: action.value, isValid: action.isValid },
-        },
-        isValid: formIsValid,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
 const NewPost = (props) => {
-  const [formState, dispatch] = useReducer(formReducer, {
-    inputs: {
+  const [formState, ChangeHandler] = useForm(
+    {
       title: {
         value: "",
         isValid: false,
@@ -45,16 +21,9 @@ const NewPost = (props) => {
         isValid: false,
       },
     },
-    isValid: false,
-  });
-  const ChangeHandler = useCallback((id, value, isValid) => {
-    dispatch({
-      type: "INPUT_CHANGE",
-      inputId: id,
-      value: value,
-      isValid: isValid,
-    });
-  }, []);
+    false
+  );
+
   const submitHandler = (event) => {
     event.preventDefault();
     console.log(formState.inputs);
