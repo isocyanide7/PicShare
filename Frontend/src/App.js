@@ -6,6 +6,7 @@ import Users from "./Users/Pages/Users/Users";
 import Error from "./Shared/Components/ErrorHandler/ErrorPage/Error";
 import NewPost from "./Posts/Pages/NewPost/NewPost";
 import UpdatePost from "./Posts/Pages/UpdatePost/UpdatePost";
+import Authenticate from "./Users/Pages/Authenticate/Login/Authenticate";
 
 
 const App = () => {
@@ -32,6 +33,12 @@ const App = () => {
             path="/:userId/posts"
             element={<UserPosts />}
             errorElement={<Error />}
+          />
+          <Route
+          exact
+          path="/authenticate"
+          element={<Authenticate/>}
+          errorElement={<Error/>}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
