@@ -1,4 +1,4 @@
-const DUMMY_PLACES = [
+const DUMMY_POSTS = [
   {
     id: "p1",
     title: "Spike Spiegel Part 1",
@@ -15,4 +15,4 @@ const DUMMY_PLACES = [
   },
 ];
 
-module.exports = DUMMY_PLACES;
+module.exports = DUMMY_POSTS;
