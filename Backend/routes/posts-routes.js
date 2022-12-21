@@ -1,24 +1,26 @@
 const express = require("express");
-const bodyParser = require("body-parser");
+const { check } = require("express-validator");
 
-const DUMMY_PLACES = require("../data/dummy-places");
+const postController = require("../controllers/posts-controllers");
 
 const Router = express.Router();
 
-Router.get("/users/:uid", (req, res, next) => {
-  const userId = req.params.uid;
-  const post = DUMMY_PLACES.find((p) => {
-    return userId === p.creator;
-  });
-  res.json({ post });
-});
+Router.get("/users/:uid", postController.getPostsByUserId);
 
-Router.get("/:pid", (req, res, next) => {
-  const postId = req.params.pid;
-  const post = DUMMY_PLACES.find((p) => {
-    return postId === p.id;
-  });
-  res.json({ post });
-});
+Router.get("/:pid", postController.getPostByPostsId);
+
+Router.post(
+  "/",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  postController.createPost
+);
+
+Router.patch(
+  "/:pid",
+  [check("title").not().isEmpty(), check("description").isLength({ min: 5 })],
+  postController.updatePost
+);
+
+Router.delete("/:pid", postController.deletePost);
 
 module.exports = Router;
