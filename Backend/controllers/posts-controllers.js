@@ -1,78 +1,177 @@
-const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
-let DUMMY_POSTS = require("../data/dummy-posts");
+const Post = require("../models/post");
+const User = require("../models/user");
+const { default: mongoose } = require("mongoose");
 
-const getPostsByUserId = (req, res, next) => {
+const getPostsByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  const posts = DUMMY_POSTS.filter((p) => {
-    return userId === p.creator;
-  });
+  let posts;
+  try {
+    posts = await Post.find({ creator: userId });
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong while fetching data. Please try again",
+      500
+    );
+    return next(error);
+  }
 
-  if (!posts || posts.length === 0)
-    return next(new HttpError("Post with this userId does not exist!", 404));
+  if (!posts || posts.length === 0) {
+    const error = new HttpError("Post with this userId does not exist!", 404);
+    return next(error);
+  }
 
-  res.json({ posts });
+  res.json({ posts: posts.map((post) => post.toObject({ getters: true })) });
 };
 
-const getPostByPostId = (req, res, next) => {
+const getPostByPostId = async (req, res, next) => {
   const postId = req.params.pid;
 
-  const post = DUMMY_POSTS.find((p) => {
-    return postId === p.id;
-  });
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong while fetching data. Please try again",
+      500
+    );
+    return next(error);
+  }
 
-  if (!post)
-    return next(new HttpError("Post with this postId does not exist!", 404));
+  if (!post) {
+    const error = new HttpError("Post with this postId does not exist!", 404);
+    return next(error);
+  }
 
-  res.json({ post });
+  res.json({ post: post.toObject({ getters: true }) });
 };
 
-const createPost = (req, res, next) => {
+const createPost = async (req, res, next) => {
   if (!validationResult(req).isEmpty())
     return next(new HttpError("Invalid data sent. Please try again", 422));
 
   const { title, description, creator } = req.body;
 
-  const createdPost = {
-    id: uuid.v4(),
+  const createdPost = new Post({
     title,
     description,
+    image:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.charactour.com%2Fhub%2Fcharacters%2Fview%2FSpike-Spiegel.Cowboy-Bebop&psig=AOvVaw2YsXjcO1kXD1fP7j15OcId&ust=1672209870670000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCKCe6ayZmfwCFQAAAAAdAAAAABAE",
     creator,
-  };
+  });
 
-  DUMMY_POSTS.push(createdPost);
+  let user;
+  try {
+    user = await User.findById(creator);
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed.Please try again." + err,
+      500
+    );
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError(
+      "User with this creator id does not exist.Please try again.",
+      500
+    );
+    return next(error);
+  }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPost.save({session:sess});
+    user.posts.push(createdPost);
+    await user.save({session:sess});
+    await sess.commitTransaction(); 
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed.Please try again." + err,
+      500
+    );
+    return next(error);
+  }
+
   res.status(201).json({ post: createdPost });
 };
 
-const updatePost = (req, res, next) => {
+const updatePost = async (req, res, next) => {
   if (!validationResult(req).isEmpty())
     return next(new HttpError("Invalid data sent. Please try again", 422));
 
   const postId = req.params.pid;
   const { title, description } = req.body;
 
-  const updatedPost = { ...DUMMY_POSTS.find((p) => p.id === postId) };
-  const postIndex = DUMMY_POSTS.findIndex((p) => p.id === postId);
-  updatedPost.title = title;
-  updatedPost.description = description;
+  let post;
+  try {
+    post = await Post.findById(postId);
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong while fetching data. Please try again",
+      500
+    );
+    return next(error);
+  }
 
-  DUMMY_POSTS[postIndex] = updatedPost;
+  if (!post) {
+    const error = new HttpError("Post with this postId does not exist!", 404);
+    return next(error);
+  }
 
-  res.json("Successfully patched");
+  post.title = title;
+  post.description = description;
+
+  try {
+    await post.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Creating place failed.Please try again." + err,
+      500
+    );
+    return next(error);
+  }
+
+  res.json({ post: post.toObject({ getters: true }) });
 };
 
-const deletePost = (req, res, next) => {
+const deletePost = async (req, res, next) => {
   const postId = req.params.pid;
 
-  const findPost = DUMMY_POSTS.find((post) => post.id === postId);
-  if (!findPost) return next(new HttpError("Post does not exist", 422));
+  let findPost;
+  try {
+    findPost = await Post.findById(postId).populate("creator");
+  } catch (err) {
+    const error = new HttpError(
+      "Something went horibbly wrong while deleting data. Please try again",
+      500
+    );
+    return next(error);
+  }
 
-  DUMMY_POSTS = DUMMY_POSTS.filter((post) => {
-    return post.id !== postId;
-  });
+  if (!findPost) {
+    const error = new HttpError("Post with this postId does not exist!", 404);
+    return next(error);
+  }
+
+  try {
+    const sess=await mongoose.startSession();
+    sess.startTransaction();
+    await findPost.remove({session:sess});
+    findPost.creator.posts.pull(findPost);
+    await findPost.creator.save({session:sess});
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError(
+      "Something went wrong while deleting data. Please try again",
+      500
+    );
+    return next(error);
+  }
 
   res.json("Deleted Successfully");
 };

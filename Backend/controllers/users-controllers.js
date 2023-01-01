@@ -1,51 +1,91 @@
-const uuid = require("uuid");
-const {validationResult} =require("express-validator");
+const { validationResult } = require("express-validator");
 
-const DUMMY_USERS = require("../data/dummy-users");
 const HttpError = require("../models/http-error");
+const User = require("../models/user");
 
-const getUsers = (req, res, next) => {
-  res.json(DUMMY_USERS);
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find({}, "-password");
+  } catch (err) {
+    const error = new HttpError("Getting Users Failed.Please try again", 500);
+  }
+
+  res.json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-const login = (req, res, next) => {
-    if (!validationResult(req).isEmpty())
-    return next(new HttpError("Invalid data sent. Please try again", 422));
+const login = async (req, res, next) => {
+  if (!validationResult(req).isEmpty()) {
+    const error = new HttpError("Invalid data sent. Please try again", 422);
+    return next(error);
+  }
 
-  const { name, password } = req.body;
+  const { email, password } = req.body;
 
-  const identifiedUser = DUMMY_USERS.find((user) => user.name === name);
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError("Logging in failed. Please try again", 500);
+    return next(error);
+  }
 
-  if (!identifiedUser || identifiedUser.password !== password)
-    return next(
-      new HttpError(
-        "Invalid Credentials. This user does not seem to exist",
-        401
-      )
+  if (!existingUser || existingUser.password !== password) {
+    const error = next(
+      new HttpError("Invalid credentials. Please try again", 401)
     );
+    return error;
+  }
 
   res.json("Logged in!");
 };
 
-const signup = (req, res, next) => {
-    if (!validationResult(req).isEmpty())
-    return next(new HttpError("Invalid data sent. Please try again", 422));
+const signup = async (req, res, next) => {
+  if (!validationResult(req).isEmpty()) {
+    const error = new HttpError("Invalid data sent. Please try again", 422);
+    return next(error);
+  }
 
   const { name, email, password } = req.body;
 
-  const hasUser = DUMMY_USERS.find((user) => user.email === email);
-  if (hasUser) return next(new HttpError("This user already exists", 422));
+  let existingUser;
+  try {
+    existingUser = await User.findOne({ email: email });
+  } catch (err) {
+    const error = new HttpError(
+      "Signing up failed. Please try again" + err,
+      500
+    );
+    return next(error);
+  }
 
-  const newUser = {
-    id: uuid.v4(),
+  if (existingUser) {
+    const error = next(
+      new HttpError("This user already exists.Login Instead", 422)
+    );
+    return error;
+  }
+
+  const newUser = new User({
     name,
     email,
     password,
-  };
+    image:
+      "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.charactour.com%2Fhub%2Fcharacters%2Fview%2FSpike-Spiegel.Cowboy-Bebop&psig=AOvVaw2YsXjcO1kXD1fP7j15OcId&ust=1672209870670000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCKCe6ayZmfwCFQAAAAAdAAAAABAE",
+    posts: [],
+  });
 
-  DUMMY_USERS.push(newUser);
+  try {
+    await newUser.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Signing up failed.Please try again." + err,
+      500
+    );
+    return next(error);
+  }
 
-  res.json("Signup is successful");
+  res.json({ user: newUser.toObject({ getters: true }) });
 };
 
 exports.getUsers = getUsers;

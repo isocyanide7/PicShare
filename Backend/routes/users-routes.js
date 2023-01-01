@@ -9,7 +9,7 @@ Router.get("/", userControllers.getUsers);
 
 Router.post(
   "/login",
-  [check("name").not().isEmpty(), check("password").isLength({ min: 8 })],
+  [check("email").isEmail(), check("password").isLength({ min: 8 })],
   userControllers.login
 );
 
