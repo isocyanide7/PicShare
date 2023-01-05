@@ -57,8 +57,34 @@ const Authenticate = () => {
 
   const auth = useContext(AuthContext);
 
-  const loginHandler = (event) => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault();
+
+    if (isLoginMode) {
+    } else {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/users/signup",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: formState.inputs.name.value,
+              email: formState.inputs.email.value,
+              password: formState.inputs.password.value,
+            }),
+          }
+        );
+
+        const responseData = await response.json();
+        console.log(responseData);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    
     auth.login();
   };
 
@@ -66,7 +92,7 @@ const Authenticate = () => {
     <Card className="authentication">
       <h2>LOGIN REQUIRED</h2>
       <hr />
-      <form onSubmit={loginHandler}>
+      <form onSubmit={authSubmitHandler}>
         {!isLoginMode && (
           <Input
             id="name"
