@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 
 import useForm from "../../../../Shared/Hooks/form-hook";
+import useHttpClient from "../../../../Shared/Hooks/http-hook";
 import Input from "../../../../Shared/Components/FormElements/Input/Input";
 import Button from "../../../../Shared/Components/FormElements/Button/Button";
 import ErrorModal from "../../../../Shared/Components/UIElements/ErrorModal/ErrorModal";
@@ -17,6 +18,7 @@ import AuthContext from "../../../../Shared/Context/auth-context";
 
 const Authenticate = () => {
   const [isLoginMode, setIsLoginMode] = useState(true);
+  //const { isLoading, error, sendRequest, errorHandler } = useHttpClient();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
 
@@ -63,6 +65,47 @@ const Authenticate = () => {
 
   const authSubmitHandler = async (event) => {
     event.preventDefault();
+
+  //   if (isLoginMode) {
+  //     try {
+  //       await sendRequest(
+  //         "http://localhost:5000/api/users/login",
+  //         "POST",
+  //         {
+  //           email: formState.inputs.email.value,
+  //           password: formState.inputs.password.value,
+  //         },
+  //         {
+  //           "Content-Type": "application/json",
+  //         }
+  //       );
+  //       auth.login();
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   } else {
+  //     try {
+  //       await sendRequest(
+  //         "http://localhost:5000/api/users/signup",
+  //         "POST",
+  //         {
+  //           name: formState.inputs.name.value,
+  //           email: formState.inputs.email.value,
+  //           password: formState.inputs.password.value,
+  //         },
+  //         {
+  //           "Content-Type": "application/json",
+  //         }
+  //       );
+  //       auth.login();
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
+  // };
+
+  //.................Breakpoint............
+
     setIsLoading(true);
 
     if (isLoginMode) {
@@ -117,7 +160,7 @@ const Authenticate = () => {
         setError(err.message || "Something went wrong. Please try again");
       }
     }
-  };
+    };
 
   const errorHandler = () => {
     setError(null);
