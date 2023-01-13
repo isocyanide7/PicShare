@@ -37,7 +37,7 @@ const login = async (req, res, next) => {
     return error;
   }
 
-  res.json("Logged in!");
+  res.json("logged in!");
 };
 
 const signup = async (req, res, next) => {
