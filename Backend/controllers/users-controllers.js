@@ -37,7 +37,10 @@ const login = async (req, res, next) => {
     return error;
   }
 
-  res.json("logged in!");
+  res.json({
+    message: "logged in!",
+    user: existingUser.toObject({ getters: true }),
+  });
 };
 
 const signup = async (req, res, next) => {
