@@ -1,13 +1,19 @@
 import React from "react";
-import { useState } from "react";
+import { useState,useContext } from "react";
 
+import AuthContext from "../../../Shared/Context/auth-context";
+import useHttpClient from "../../../Shared/Hooks/http-hook";
 import Card from "../../../Shared/Components/UIElements/Card/Card";
 import Button from "../../../Shared/Components/FormElements/Button/Button";
 import Modal from "../../../Shared/Components/UIElements/Modal/Modal";
 
 import "./PostItem.css";
+import ErrorModal from "../../../Shared/Components/UIElements/ErrorModal/ErrorModal";
+import LoadingSpinner from "../../../Shared/Components/UIElements/LoadingSpinner/LoadingSpinner";
 
 const PostItem = (props) => {
+  const {isLoading, error, sendRequest, errorHandler} =useHttpClient();
+  const auth = useContext(AuthContext);
   const [showPhoto, setShowPhoto] = useState(false);
   const openPhotoHandler = () => {
     setShowPhoto(true);
@@ -23,13 +29,18 @@ const PostItem = (props) => {
   const cancelDeleteHandler = () => {
     setShowConfirmModal(false);
   };
-  const confirmDeleteHandler = () => {
+  const confirmDeleteHandler = async () => {
     setShowConfirmModal(false);
-    console.log("...DELETING");
+    
+    try{
+      await sendRequest(`http://localhost:5000/api/posts/${props.id}`, "DELETE");
+      props.onDelete(props.id);
+    }catch(err){console.log(err.message)}
   };
 
   return (
     <React.Fragment>
+      <ErrorModal error={error} onClear={errorHandler}/>
       <Modal
         show={showPhoto}
         onCancel={closePhotoHandler}
@@ -61,6 +72,7 @@ const PostItem = (props) => {
         <p>DELETING IS IRREVERSIBLE. DO YOU WANT TO PROCEED?</p>
       </Modal>
       <li className="post-item">
+        {isLoading && <LoadingSpinner asOverlay/>}
         <Card className="post-item__content">
           <div className="post-item__image">
             <img src={props.image} alt={props.title} />
@@ -72,10 +84,10 @@ const PostItem = (props) => {
             <Button inverse onClick={openPhotoHandler}>
               VIEW DESCRIPTION
             </Button>
-            <Button to={`/posts/${props.id}`}>EDIT POST</Button>
-            <Button danger onClick={showDeleteWarningHandler}>
+            {auth.userId===props.creatorId && <Button to={`/posts/${props.id}`}>EDIT POST</Button>}
+            {auth.userId===props.creatorId && <Button danger onClick={showDeleteWarningHandler}>
               DELETE POST
-            </Button>
+            </Button>}
           </div>
         </Card>
       </li>
